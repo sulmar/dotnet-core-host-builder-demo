@@ -75,7 +75,7 @@ namespace dotnet_core_host_builder_demo
         {
             TcpListener listener = new TcpListener(IPAddress.Any, options.Port);
 
-            logger.LogInformation("Tcp listener started on port {0}", options.Port);
+            logger.LogInformation("Tcp listener started on port {port}", options.Port);
 
             listener.Start();
             while (!cancellationToken.IsCancellationRequested)
@@ -92,7 +92,7 @@ namespace dotnet_core_host_builder_demo
                         int read = await stream.ReadAsync(data, 0, 1024, cancellationToken);
 
                         var cmd = Encoding.UTF8.GetString(data, 0, read);
-                        logger.LogInformation("received {0}", cmd);
+                        logger.LogInformation("received {cmd}", cmd);
 
                         string response = "OK";
 
