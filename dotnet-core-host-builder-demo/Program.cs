@@ -25,8 +25,11 @@ namespace dotnet_core_host_builder_demo
                     services.AddScoped<IHostedService, MyHostedService>();
                     services.AddScoped<IService, MyService>();
 
-                    services.AddOptions();
+                    // Konfiguracja w kodzie
                     // services.Configure<MyOptions>(option => option.Port = 8899);
+
+                    // Pobieranie konfiguracji z pliku
+                    services.AddOptions();
                     services.Configure<MyOptions>(hostContext.Configuration.GetSection("MyOptions"));
                 })
                
