@@ -20,13 +20,14 @@ namespace dotnet_core_host_builder_demo
 
             // add package Microsoft.Extensions.Hosting
             var host = new HostBuilder()
-                .ConfigureServices(services =>
+                .ConfigureServices((hostContext, services) =>
                 {
                     services.AddScoped<IHostedService, MyHostedService>();
                     services.AddScoped<IService, MyService>();
 
-                    services.Configure<MyOptions>(option => option.Port = 8899);
-
+                    services.AddOptions();
+                    // services.Configure<MyOptions>(option => option.Port = 8899);
+                    services.Configure<MyOptions>(hostContext.Configuration.GetSection("MyOptions"));
                 })
                
                  .ConfigureAppConfiguration((hostContext, config) =>
