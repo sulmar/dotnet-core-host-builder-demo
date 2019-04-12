@@ -94,8 +94,8 @@ namespace dotnet_core_host_builder_demo
 
                         int read = await stream.ReadAsync(data, 0, 1024, cancellationToken);
 
-                        var cmd = Encoding.UTF8.GetString(data, 0, read);
-                        logger.LogInformation("received {cmd}", cmd);
+                        var request = Encoding.UTF8.GetString(data, 0, read);
+                        logger.LogInformation("received {request}", request);
 
                         string response = "OK";
 
