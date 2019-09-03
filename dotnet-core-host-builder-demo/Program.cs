@@ -14,19 +14,7 @@ namespace dotnet_core_host_builder_demo
         {
             // add package Microsoft.Extensions.Hosting
             IHost host = new HostBuilder()
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services.AddScoped<IHostedService, MyTcpServer>();
-                    services.AddScoped<IRequestService, MyRequestService>();
-
-                    // Konfiguracja w kodzie
-                    // services.Configure<MyOptions>(option => option.Port = 8899);
-
-                    // Pobieranie konfiguracji z pliku
-                    services.AddOptions();
-                    services.Configure<MyOptions>(hostContext.Configuration.GetSection("MyOptions"));
-                })
-               
+                 .UseTcpService<MyRequestService>()
                  .ConfigureAppConfiguration((hostContext, config) =>
                  {
                      // add package Microsoft.Extensions.Configuration.Json;

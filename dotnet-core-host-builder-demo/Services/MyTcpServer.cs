@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.IO;
+using System;
 
 namespace dotnet_core_host_builder_demo
 {
@@ -14,7 +15,7 @@ namespace dotnet_core_host_builder_demo
         public int Port { get; set; }
     }
 
-    public class MyTcpServer : IHostedService
+    public class MyTcpServer : IHostedService, IDisposable
     {
         private readonly MyOptions options;
         private readonly ILogger logger;
@@ -25,6 +26,10 @@ namespace dotnet_core_host_builder_demo
             this.options = options.Value;
             this.logger = logger;
             this.requestService = requestService;
+        }
+
+        public void Dispose()
+        {
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
