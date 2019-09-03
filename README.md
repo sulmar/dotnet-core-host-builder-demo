@@ -2,7 +2,8 @@
 
 Przykład wykorzystania generycznego hosta z użyciem klasy HostBuilder do tworzenia aplikacji w stylu TCP Server.
 
-Klasa MyTcpServer implementuje interfejs IHostedService.
+Logika przetwarzania zapytań została celowo oddzielona od serwera TCP.
+Dzięki temu można podpinać dowolne implementacje przetwarzania zapytań. Z drugiej strony można wykorzystać istniejącą logikę, ale wykorzystać inny protokół niż TCP.
 
 
 ## Opis
@@ -28,12 +29,26 @@ static async Task Main(string[] args)
 lub przekazać instancję klasy, która musi implementować interfejs IRequestService
 
 ~~~ csharp
- tatic async Task Main(string[] args)
+public interface IRequestService
+{
+    Task<string> Send(string content);
+}
+
+public class MyRequestService : IRequestService
+{
+    public Task<string> Send(string content)
+    {
+        return Task.FromResult("OK");
+    }
+}
+~~~
+
+~~~ csharp
+static async Task Main(string[] args)
 {
     
     IHost host = new HostBuilder()
         .UseTcpService(new MyRequestService())
-
         .Build();
 
     await host.RunAsync();
