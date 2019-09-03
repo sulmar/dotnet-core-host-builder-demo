@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System.IO;
 
 namespace dotnet_core_host_builder_demo
 {
@@ -24,6 +25,7 @@ namespace dotnet_core_host_builder_demo
                 {
                     services.AddScoped<IHostedService, MyHostedService>();
                     services.AddScoped<IService, MyService>();
+                    services.AddScoped<IRequestService, MyRequestService>();
 
                     // Konfiguracja w kodzie
                     // services.Configure<MyOptions>(option => option.Port = 8899);
@@ -58,6 +60,19 @@ namespace dotnet_core_host_builder_demo
     }
 
 
+    public interface IRequestService
+    {
+        Task<string> GetResponse(string request);
+    }
+
+    public class MyRequestService : IRequestService
+    {
+        public Task<string> GetResponse(string request)
+        {
+            return Task.FromResult("OK");
+        }
+    }
+
     public class MyOptions
     {
         public int Port { get; set; }
@@ -67,12 +82,14 @@ namespace dotnet_core_host_builder_demo
     {
         private readonly MyOptions options;
         private readonly ILogger logger;
+        private readonly IRequestService requestService;
 
 
-        public MyService(IOptions<MyOptions> options, ILogger<MyService> logger)
+        public MyService(IOptions<MyOptions> options, ILogger<MyService> logger, IRequestService requestService)
         {
             this.options = options.Value;
             this.logger = logger;
+            this.requestService = requestService;
         }
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
@@ -84,32 +101,41 @@ namespace dotnet_core_host_builder_demo
             while (!cancellationToken.IsCancellationRequested)
             {
                 TcpClient client = await listener.AcceptTcpClientAsync();
+
                 logger.LogInformation("a new client connected");
 
                 using (NetworkStream stream = client.GetStream())
+                using (StreamReader reader = new StreamReader(stream))
+                using (StreamWriter writer = new StreamWriter(stream))
                 {
-                    while (!cancellationToken.IsCancellationRequested)
                     {
-                        byte[] data = new byte[1024];
 
-                        int read = await stream.ReadAsync(data, 0, 1024, cancellationToken);
+                        while (client.Connected)
+                        {
+                            var request = await reader.ReadLineAsync();
 
-                        var cmd = Encoding.UTF8.GetString(data, 0, read);
-                        logger.LogInformation("received {cmd}", cmd);
+                            if (request == null)
+                            {
+                                logger.LogInformation("Client disconnected.");
+                                break;
+                            }
 
-                        string response = "OK";
+                            logger.LogInformation($"Received: {request}");
 
-                        var responseBytes = Encoding.UTF8.GetBytes(response);
+                            string response = await requestService.GetResponse(request);
 
-                        await stream.WriteAsync(responseBytes, 0, responseBytes.Length, cancellationToken);
-                        stream.Flush();
+                            await writer.WriteLineAsync(response);
+
+                            logger.LogInformation($"Sent: {response}");
+
+                            writer.AutoFlush = true;
+
+                        }
+                      
                     }
                 }
             }
-
-
-
-            }
+        }
     }
 
     public class MyHostedService : IHostedService
