@@ -5,16 +5,39 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System.Reflection.Metadata.Ecma335;
 
 namespace dotnet_core_host_builder_demo
 {
+    public interface IRequestService
+    {
+        Task<string> Send(string content);
+    }
+
+    public class MyRequestService : IRequestService
+    {
+        public Task<string> Send(string content)
+        {
+            return Task.FromResult($"{content} OK");
+        }
+    }
+
+    public class MyMiddleware
+    {
+        public Task<string> InvokeAsync(string request)
+        {
+            return Task.FromResult("OK");
+        }
+    }
+
     class Program
     {
         static async Task Main(string[] args)
         {
             // add package Microsoft.Extensions.Hosting
             IHost host = new HostBuilder()
-                 .UseTcpService<MyRequestService>()
+                .UseTcpService(new MyRequestService())
+                 //.UseTcpService(request => Task.FromResult("OK"))
                  .ConfigureAppConfiguration((hostContext, config) =>
                  {
                      // add package Microsoft.Extensions.Configuration.Json;

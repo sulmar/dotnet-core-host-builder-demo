@@ -6,7 +6,3 @@ Funkcje:
 - konfiguracja aplikacji
 - konfiguracja logowania
 
-
-Dokumentacja:
-https://docs.microsoft.com/pl-pl/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-2.2
-
