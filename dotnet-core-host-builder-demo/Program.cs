@@ -20,7 +20,7 @@ namespace dotnet_core_host_builder_demo
             Console.WriteLine("Hello World!");
 
             // add package Microsoft.Extensions.Hosting
-            var host = new HostBuilder()
+            IHost host = new HostBuilder()
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddScoped<IHostedService, MyHostedService>();
