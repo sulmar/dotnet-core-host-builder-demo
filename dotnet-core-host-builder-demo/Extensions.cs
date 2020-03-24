@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using dotnet_core_host_builder_demo;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,37 +12,23 @@ public static class Extensions
             services.AddHostedService<T>());
     }
 
-    public static IHostBuilder UseTcpService(this IHostBuilder hostBuilder, RequestTcp request)
+
+    public static IHostBuilder UseTcpService(this IHostBuilder hostBuilder, Func<string, string> request)
     {
-        return hostBuilder.UseHostedService<MyTcpServer>()
+        return hostBuilder.UseHostedService<TcpHostedServer>()
             .ConfigureServices((hostContext, services) =>
             {
-                services.AddSingleton<RequestTcp>(content => request(content));
+               services.AddSingleton<Func<string, string>>(request);
 
                 // Domyślna konfiguracja zdefiniowana za pomocą kodu
-                 services.Configure<MyOptions>(option => option.Port = 5000);
+                 services.Configure<TcpHostedServerOptions>(option => option.Port = 5000);
 
                 // Pobieranie konfiguracji z pliku
                 services.AddOptions();
-                services.Configure<MyOptions>(hostContext.Configuration.GetSection("MyOptions"));
+                services.Configure<TcpHostedServerOptions>(hostContext.Configuration.GetSection("TcpHostedServer"));
 
             });
     }
 
-    public static IHostBuilder UseTcpService(this IHostBuilder hostBuilder, IRequestService requestService)
-    {
-        return hostBuilder.UseHostedService<MyTcpServer>()
-            .ConfigureServices((hostContext, services) =>
-            {
-                services.AddSingleton<RequestTcp>(content => requestService.Send(content));
-
-                // Domyślna konfiguracja zdefiniowana za pomocą kodu
-                services.Configure<MyOptions>(option => option.Port = 5000);
-
-                // Pobieranie konfiguracji z pliku
-                services.AddOptions();
-                services.Configure<MyOptions>(hostContext.Configuration.GetSection("MyOptions"));
-
-            });
-    }
+  
 }

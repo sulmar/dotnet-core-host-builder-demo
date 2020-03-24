@@ -10,31 +10,28 @@ using System;
 
 namespace dotnet_core_host_builder_demo
 {
-    public class MyOptions
+    public class TcpHostedServerOptions
     {
         public int Port { get; set; }
     }
 
-    public delegate Task<string> RequestTcp(string content);
-
-    public class MyTcpServer : IHostedService, IDisposable
+    public class TcpHostedServer : IHostedService, IDisposable
     {
-        private readonly MyOptions options;
+        private readonly TcpHostedServerOptions options;
         private readonly ILogger logger;
-        private readonly RequestTcp execute;
 
-        public MyTcpServer(IOptions<MyOptions> options, ILogger<MyTcpServer> logger = null, RequestTcp execute = null)
+        private Func<string, string> func;
+
+        public TcpHostedServer(
+            IOptions<TcpHostedServerOptions> options, 
+            ILogger<TcpHostedServer> logger = null, 
+            Func<string, string> func = null)
         {
             this.options = options.Value;
             this.logger = logger;
-            this.execute = execute;
+            this.func = func;
         }
 
-      
-
-        public void Dispose()
-        {
-        }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -65,8 +62,8 @@ namespace dotnet_core_host_builder_demo
 
                         logger?.LogInformation("Received {request}", request);
 
-                        string response = await execute?.Invoke(request);
-
+                        string response = func?.Invoke(request);
+                       
                         await writer.WriteLineAsync(response);
 
                         logger?.LogInformation("Sent {response}", response);
@@ -83,7 +80,12 @@ namespace dotnet_core_host_builder_demo
 
             return Task.CompletedTask;
         }
+
+        public void Dispose()
+        {
+        }
+
     }
 
-    
+
 }
