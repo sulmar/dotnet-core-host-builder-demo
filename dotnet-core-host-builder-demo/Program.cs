@@ -9,7 +9,9 @@ namespace dotnet_core_host_builder_demo
     {
         static async Task Main(string[] args)
         {
-            await CreateHostBuilder(args).UseTcpService(request => $"ECHO {request}").Build().RunAsync();
+            IHost host = CreateHostBuilder(args).UseTcpService(request => $"ECHO {request}").Build();
+            
+            await host.RunAsync();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
