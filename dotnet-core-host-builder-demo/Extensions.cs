@@ -20,10 +20,10 @@ public static class Extensions
             {
                services.AddSingleton<Func<string, string>>(request);
 
-                // Domyślna konfiguracja zdefiniowana za pomocą kodu
+                // Get default options
                  services.Configure<TcpHostedServerOptions>(option => option.Port = 5000);
 
-                // Pobieranie konfiguracji z pliku
+                // Get options from configuration
                 services.AddOptions();
                 services.Configure<TcpHostedServerOptions>(hostContext.Configuration.GetSection("TcpHostedServer"));
 
