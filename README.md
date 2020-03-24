@@ -19,42 +19,14 @@ W metodzie można przekazać delegat do obsługi zapytań:
 static async Task Main(string[] args)
 {
     IHost host = new HostBuilder()
-        .UseTcpService(request => Task.FromResult("OK"))
+        .UseTcpService(request => $"ECHO {request}")
         .Build();
 
     await host.RunAsync();
 }
 ~~~
 
-lub przekazać instancję klasy, która musi implementować interfejs IRequestService
-
-~~~ csharp
-public interface IRequestService
-{
-    Task<string> Send(string content);
-}
-
-public class MyRequestService : IRequestService
-{
-    public Task<string> Send(string content)
-    {
-        return Task.FromResult("OK");
-    }
-}
-~~~
-
-~~~ csharp
-static async Task Main(string[] args)
-{
-    
-    IHost host = new HostBuilder()
-        .UseTcpService(new MyRequestService())
-        .Build();
-
-    await host.RunAsync();
-}
-~~~
-
+Sposób przetwarzania żądań można wskazać poprzez funkcję zgodną z *Func<string, string>*
 
 ## Konfiguracja
 
@@ -62,14 +34,11 @@ Domyślny port to 5000 ale można go zmienić poprzez konfigurację:
 
 ~~~ json
 
-"MyOptions": {
+"TcpHostedServer": {
     "port": 8899
   }
 
 ~~~
-
-
-
 
 
 
